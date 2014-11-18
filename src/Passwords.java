@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.*;
+import java.lang.*;
 
 public class Passwords {
 
@@ -18,12 +20,15 @@ public class Passwords {
     public static void main(String[] args) {
         try{
             referenceFile = new BufferedReader(new FileReader(args[0]));
+            int numOfPasswords = Integer.parseInt(args[1]);
+            int sizeOfPasswords = Integer.parseInt(args[2]);
             counts = new int[26];
             starters = new int[26];
             followersTable = generateFollowersTable(referenceFile);
             printFollowersTable();
             printCounts();
             printsStarters();
+            getPasswords(numOfPasswords, sizeOfPasswords);
             referenceFile.close();
         }catch (Exception e){
             e.printStackTrace();
@@ -75,6 +80,52 @@ public class Passwords {
         return false;
     }
 
+    private static void getPasswords(int amount, int size){
+        for(int i = 0; i < amount; i++){
+            char s = getStarterLetter();
+            String p = getPassword(s, size);
+            System.out.println(p);
+        }
+    }
+    private static String getPassword(char c, int size){
+        String password = "";
+        password += c;
+        char starter = c; 
+        char letter;
+        for(int i = 0; i < size-1; i++){
+            letter = getNextLetter(starter);
+            password += letter;
+            starter = letter;
+        }
+        return password;
+    }
+
+    private static char getNextLetter(char c){
+        // System.out.println(c);
+        int index = getAlphabetIndex(c);
+        int size = counts[index-1];
+        int seed = 20;
+        Random rand = new Random();
+        int prob = rand.nextInt(size) + 1;
+        // System.out.println("max size: " + size);
+        // System.out.println("PROB: " +prob);
+
+        int count=0;
+        int n =0;
+        while(count <= prob){
+            count += followersTable[index-1][n];
+            // System.out.print("count: "+ count + " index: "+ n + " \n");
+            n++;
+        }
+        char nextLetter = getIndexAlphabet(n);
+        // System.out.println(nextLetter);
+        return nextLetter;
+    }
+
+    private static char getStarterLetter(){
+        return 'b';
+    }
+
     private static void printFollowersTable(){
         for(int row = 0; row < 26; row++){
             for(int column = 0; column < 26; column++){
@@ -86,6 +137,11 @@ public class Passwords {
 
     private static int getAlphabetIndex(char c){
         return (int)c - 96;
+    }
+
+    private static char getIndexAlphabet(int i){
+        i += 96;
+        return (char)i;
     }
 
     private static void printCounts(){
