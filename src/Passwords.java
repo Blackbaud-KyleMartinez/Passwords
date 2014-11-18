@@ -15,6 +15,7 @@ public class Passwords {
                                                             'y', 'z'};
     private static int[] counts;
     private static int[] starters;
+    private static int startersCount=0;
 
 
     public static void main(String[] args) {
@@ -28,6 +29,7 @@ public class Passwords {
             printFollowersTable();
             printCounts();
             printsStarters();
+            getStarterCount();
             getPasswords(numOfPasswords, sizeOfPasswords);
             referenceFile.close();
         }catch (Exception e){
@@ -101,29 +103,30 @@ public class Passwords {
     }
 
     private static char getNextLetter(char c){
-        // System.out.println(c);
         int index = getAlphabetIndex(c);
-        int size = counts[index-1];
         int seed = 20;
         Random rand = new Random();
-        int prob = rand.nextInt(size) + 1;
-        // System.out.println("max size: " + size);
-        // System.out.println("PROB: " +prob);
-
+        int prob = rand.nextInt(counts[index-1]) + 1;
         int count=0;
-        int n =0;
+        int i =0;
         while(count <= prob){
-            count += followersTable[index-1][n];
-            // System.out.print("count: "+ count + " index: "+ n + " \n");
-            n++;
+            count += followersTable[index-1][i];
+            i++;
         }
-        char nextLetter = getIndexAlphabet(n);
-        // System.out.println(nextLetter);
-        return nextLetter;
+        return getIndexAlphabet(i);
     }
 
     private static char getStarterLetter(){
-        return 'b';
+        Random rand = new Random();
+        int prob = rand.nextInt(startersCount) + 1;
+        int i= 0;
+        int count = 0;
+        while(count <= prob){
+            count += starters[i];
+            i++;
+        }
+        char nextLetter = getIndexAlphabet(i);
+        return nextLetter;
     }
 
     private static void printFollowersTable(){
@@ -142,6 +145,12 @@ public class Passwords {
     private static char getIndexAlphabet(int i){
         i += 96;
         return (char)i;
+    }
+
+    private static void getStarterCount(){
+        for(int i =0; i < 26; i++){
+            startersCount += starters[i];
+        }
     }
 
     private static void printCounts(){
